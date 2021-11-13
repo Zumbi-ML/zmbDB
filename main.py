@@ -1,5 +1,5 @@
 import constants
-from db_services import add_user
+from db import user_services, authorizer
 from flask import Flask, request
 import json
 from markdown import markdown
@@ -9,10 +9,10 @@ app = Flask(__name__)
 debug_mode = get_api_property("debug_mode") == "True"
 app.config["DEBUG"] = debug_mode
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
     """
-    Presents the Zumbi DB API README.md file
+    Presents the Zumbi DB API README.md
     """
     with open('README.md', 'r') as f:
         return markdown(f.read())
@@ -24,13 +24,14 @@ def create_user():
     Example of a json request
     {}
     """
-    if (not is_api_key_valid(request.headers.get("X-Api-Key"))):
-        return build_unauthorized_response(app)
+    #if (not is_api_key_valid(request.headers.get("X-Api-Key"))):
+    #    return build_unauthorized_response(app)
 
     name = request.json.get('name')
     code = request.json.get('code')
-    api_key = add_user(name=n, cod=c, session=None)
-    content = {"data": [{"X-Api-Key": api_key}], 'message': f"Added collaborator {name}:{code} successfully"}
+    print(f"name: {name}\tcode:{code}")
+    api_key = user_services.add_user(name=name, code=code, session=None)
+    content = {"data": [{"X-Api-Key": api_key}], 'message': f"Added user {name}:{code} successfully"}
     response = build_response(app, content)
     return response
 
@@ -55,7 +56,7 @@ def is_api_key_valid(api_key):
     """
     Checks whether the api key is valid in the DB
     """
-    return True
+    return authorizer.is_api_key_valid(api_key)
 
 api_host = get_api_property("api_host")
 api_port = int(get_api_property("api_port"))
