@@ -1,4 +1,4 @@
-from credentials import DB_USER, DB_PWD, DB_HOST, DB_NAME
+from db.credentials import DB_USER, DB_PWD, DB_HOST, DB_NAME
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

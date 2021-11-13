@@ -1,8 +1,8 @@
 from sqlalchemy import MetaData, Table, Column
 from sqlalchemy import Integer, String, Date, ForeignKey, UniqueConstraint
 from sqlalchemy_utils import database_exists, create_database, drop_database
-from tables.tb_definitions import *
-from utils import get_engine
+from db.tables.tb_definitions import *
+from db.utils import get_engine
 
 engine = get_engine()
 
@@ -11,11 +11,11 @@ def create_db():
         drop_database(engine.url)
     create_database(engine.url)
 
-def create_schema():
+def create_tables():
     Base.metadata.create_all(engine)
 
-def execute():
+def recreate():
     create_db()
-    create_schema()
+    create_tables()
 
-execute()
+recreate()

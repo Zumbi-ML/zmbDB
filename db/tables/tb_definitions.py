@@ -1,18 +1,19 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, Text
 from sqlalchemy import UniqueConstraint, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from constants import API_KEY_SIZE
 
 Base = declarative_base()
 
-class TableCollaborators(Base):
-    __tablename__ = "tb_collaborators"
-    __table_args__ = (UniqueConstraint('cod', name="codx_1"),)
+class TableUsers(Base):
+    __tablename__ = "tb_users"
+    __table_args__ = (UniqueConstraint('code', name="codx_1"),)
     id = Column('id', Integer, primary_key=True)
-    cod = Column('cod', String(12))
+    code = Column('code', String(12))
     name = Column('name', String(50), nullable=False)
-    token = Column('token', String(36), nullable=False)
-    perm_level = Column('perm_level', nullable=False)
+    api_key = Column('api_key', String(API_KEY_SIZE), nullable=False)
+    perm_level = Column('perm_level', Integer, nullable=False)
 
 class TableArticles(Base):
     __tablename__ = "tb_articles"
@@ -20,6 +21,7 @@ class TableArticles(Base):
     id = Column('id', Integer, primary_key=True)
     miner = Column('miner', String(12), nullable=False)
     publ_date = Column('publ_date', Date)
+    content = Column('content', Text(30000))
     uri = Column('uri', String(255), nullable=False)
     source_id = Column('source_id', Integer, ForeignKey('tb_sources.id'), nullable=False)
     table_sources = relationship("TableSources")
@@ -100,4 +102,10 @@ class TableLaws(Base):
     id = Column('id', Integer, ForeignKey('tb_articles.id'), primary_key=True)
     title = Column('title', String(50))
     code = Column('code', String(50))
+    table_articles = relationship("TableArticles")
+
+class TablePolices(Base):
+    __tablename__ = "tb_polices"
+    id = Column('id', Integer, ForeignKey('tb_articles.id'), primary_key=True)
+    name = Column('name', String(50), nullable=False)
     table_articles = relationship("TableArticles")
