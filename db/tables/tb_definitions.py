@@ -17,14 +17,16 @@ class TableUsers(Base):
 
 class TableArticles(Base):
     __tablename__ = "tb_articles"
-    __table_args__ = (UniqueConstraint('uri', name="urix_1"),)
+    __table_args__ = (UniqueConstraint('hashed_uri', name="urix_1"),)
     id = Column('id', Integer, primary_key=True)
-    miner = Column('miner', String(12), nullable=False)
+    hashed_uri = Column('hashed_uri', String(255), nullable=False)
+    uri = Column('uri', Text(2048), nullable=False)
+    content = Column('content', Text(30000), nullable=False)
     publ_date = Column('publ_date', Date)
-    content = Column('content', Text(30000))
-    uri = Column('uri', String(255), nullable=False)
-    source_id = Column('source_id', Integer, ForeignKey('tb_sources.id'), nullable=False)
-    table_sources = relationship("TableSources")
+    source = Column('source', String(20))
+    miner = Column('miner', String(12))
+    #source_id = Column('source_id', Integer, ForeignKey('tb_sources.id'), nullable=False)
+    #table_sources = relationship("TableSources")
 
 class TableSources(Base):
     __tablename__ = "tb_sources"

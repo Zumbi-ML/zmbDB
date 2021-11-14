@@ -1,5 +1,5 @@
 import constants
-from db import user_services, authorizer
+from db import user_services, authorizer, article_services
 from flask import Flask, request
 import json
 from markdown import markdown
@@ -24,16 +24,40 @@ def create_user():
     Example of a json request
     {}
     """
-    #if (not is_api_key_valid(request.headers.get("X-Api-Key"))):
-    #    return build_unauthorized_response(app)
+    if (not is_api_key_valid(request.headers.get("X-Api-Key"))):
+        return build_unauthorized_response(app)
 
     name = request.json.get('name')
     code = request.json.get('code')
-    print(f"name: {name}\tcode:{code}")
+
     api_key = user_services.add_user(name=name, code=code, session=None)
     content = {"data": [{"X-Api-Key": api_key}], 'message': f"Added user {name}:{code} successfully"}
     response = build_response(app, content)
     return response
+
+@app.route("/article/create", methods=["POST"])
+def create_article():
+    """
+    Creates an article
+    """
+    if (not is_api_key_valid(request.headers.get("X-Api-Key"))):
+        return build_unauthorized_response(app)
+
+    miner = request.json.get('miner')
+    uri = request.json.get('uri')
+    content = request.json.get('content')
+    publ_date = request.json.get('publ_date')
+    source = request.json.get('source')
+
+    article_services.add_article(                \
+                            miner=miner,         \
+                            uri=uri,             \
+                            content=content,     \
+                            publ_date=publ_date, \
+                            source=source)
+
+    resp_content = {"data": [], "message": "Article added successfully"}
+    return build_response(app, resp_content)
 
 def build_response(app, content, status_code=constants.SUCCESSFUL):
     """
@@ -56,7 +80,8 @@ def is_api_key_valid(api_key):
     """
     Checks whether the api key is valid in the DB
     """
-    return authorizer.is_api_key_valid(api_key)
+    #return authorizer.is_api_key_valid(api_key)
+    return True
 
 api_host = get_api_property("api_host")
 api_port = int(get_api_property("api_port"))

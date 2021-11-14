@@ -1,3 +1,5 @@
+from datetime import date
+
 def get_api_property(property):
     """
     Return a property in the .db.properties file
@@ -12,3 +14,7 @@ def get_api_property(property):
                 return p.strip()
             line = f.readline()
     return None
+
+def str2date(str_date, sep="-"):
+    year, month, day = str_date.split(sep)
+    return date(int(year), int(month), int(day))
