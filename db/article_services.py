@@ -1,5 +1,5 @@
+from db.credentials import get_session
 from db.tables.tb_definitions import TableArticles
-from db.utils import get_session
 from utils import str2date
 
 def add_article(uri, content, publ_date=None, source=None, miner=None, session=None):

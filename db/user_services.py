@@ -1,6 +1,6 @@
-from db.tables.tb_definitions import TableUsers
 from db.authorizer import create_api_key
-from db.utils import get_session
+from db.tables.tb_definitions import TableUsers
+from db.credentials import get_session
 
 def add_user(name, code, session=None, pl=0):
     key = create_api_key()

@@ -3,10 +3,10 @@ from db import user_services, authorizer, article_services
 from flask import Flask, request
 import json
 from markdown import markdown
-from utils import get_api_property
+from utils import get_property
 
 app = Flask(__name__)
-debug_mode = get_api_property("debug_mode") == "True"
+debug_mode = get_property("debug_mode") == "True"
 app.config["DEBUG"] = debug_mode
 
 @app.route("/", methods=["GET", "POST"])
@@ -83,6 +83,6 @@ def is_api_key_valid(api_key):
     #return authorizer.is_api_key_valid(api_key)
     return True
 
-api_host = get_api_property("api_host")
-api_port = int(get_api_property("api_port"))
+api_host = get_property("api_host")
+api_port = int(get_property("api_port"))
 app.run(host=api_host, port=api_port, debug=debug_mode)

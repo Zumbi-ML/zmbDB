@@ -1,12 +1,12 @@
 from datetime import date
 
-def get_api_property(property):
+def get_property(property):
     """
-    Return a property in the .db.properties file
+    Return a property in the properties file
     Args:
         property: name of the property. E.g. db_user
     """
-    with open(".api.properties") as f:
+    with open(".properties") as f:
         line = f.readline()
         while (line):
             if (property in line):

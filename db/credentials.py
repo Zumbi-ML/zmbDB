@@ -1,19 +1,16 @@
-def get_property(property):
-    """
-    Return a property in the .db.properties file
-    Args:
-        property: name of the property. E.g. db_user
-    """
-    with open(".db.properties") as f:
-        line = f.readline()
-        while (line):
-            if (property in line):
-                p = line.split(":")[1]
-                return p.strip()
-            line = f.readline()
-    return None
+from utils import get_property
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 DB_USER = get_property("db_user")
 DB_PWD = get_property("db_pwd")
 DB_HOST = get_property("db_host")
 DB_NAME = get_property("db_name")
+
+def get_engine(db_user=DB_USER, db_pwd=DB_PWD, db_host=DB_HOST, db_name=DB_NAME):
+    return create_engine(f"mysql://{db_user}:{db_pwd}@{db_host}/{db_name}", echo=True)
+
+def get_session():
+    engine = get_engine()
+    Session = sessionmaker(bind=engine)
+    return Session()

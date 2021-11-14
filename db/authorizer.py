@@ -1,11 +1,12 @@
 from constants import API_KEY_SIZE
+from db.credentials import get_session
 from db.tables.tb_definitions import TableUsers
-from db.utils import get_session
 from random import randint
 
 QUOTE = 34
 DOUBLE_QUOTE = 39
 APOSTROPHE = 96
+exceptions = [QUOTE, DOUBLE_QUOTE, APOSTROPHE]
 
 def create_api_key(n=API_KEY_SIZE):
     ini, end = 33, 126
@@ -13,7 +14,7 @@ def create_api_key(n=API_KEY_SIZE):
     key_size = 0
     while (key_size < n):
         num = randint(ini, end + 1)
-        if (num == QUOTE or num == DOUBLE_QUOTE or num == APOSTROPHE):
+        if (num in exceptions):
             continue
         key += chr(num)
         key_size += 1

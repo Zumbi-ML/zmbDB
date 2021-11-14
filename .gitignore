@@ -1,5 +1,4 @@
 __pycache__/*
 */__pycache__/*
 */*/__pycache__/*
-.db.properties
-.api.properties
+.properties
