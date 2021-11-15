@@ -12,10 +12,6 @@ class Authorizer(object):
         """
         Constructor
         """
-        QUOTE = 34
-        DOUBLE_QUOTE = 39
-        APOSTROPHE = 96
-        self._exceptions = [QUOTE, DOUBLE_QUOTE, APOSTROPHE]
         self._session = get_session()
 
     def __enter__(self):
@@ -30,12 +26,15 @@ class Authorizer(object):
         """
         self._session.close()
 
-    def create_api_key(self, n=API_KEY_SIZE):
+    def create_api_key(n=API_KEY_SIZE):
         """
         Creates an API key_size
         Args:
             n: API key size. Defaults to constants.API_KEY_SIZE
         """
+        QUOTE, DOUBLE_QUOTE, APOSTROPHE = 34, 39, 96
+        exceptions = [QUOTE, DOUBLE_QUOTE, APOSTROPHE]
+
         ini, end = 33, 126 # ASCII Codes
         key = ""
         key_size = 0
