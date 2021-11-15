@@ -1,5 +1,6 @@
 import constants
-from db import user_services, authorizer, article_services
+from db import user_services, authorizer
+from db.article_service import ArticleService
 from flask import Flask, request
 import json
 from markdown import markdown
@@ -16,6 +17,10 @@ def index():
     """
     with open('README.md', 'r') as f:
         return markdown(f.read())
+
+#################################################################
+# ADMIN FUNCTIONS
+##################################################################
 
 @app.route("/user/create", methods=["POST"])
 def create_user():
@@ -39,25 +44,33 @@ def create_user():
 def create_article():
     """
     Creates an article
+
+    Example of Incoming JSON
+    {"article": {"miner":"<miner>", "uri":"<uri>", "content":"<content>", "publ_date":"<publ_date>"}
+     "entities":
+        {
+         "sources": ["<source1>", "<source2>"],
+         "people": ["<person1>", "<person2>"],
+         ...
+         "entity": [<values>]
+        }
+    }
     """
     if (not is_api_key_valid(request.headers.get("X-Api-Key"))):
         return build_unauthorized_response(app)
 
-    miner = request.json.get('miner')
-    uri = request.json.get('uri')
-    content = request.json.get('content')
-    publ_date = request.json.get('publ_date')
-    source = request.json.get('source')
+    article = request.json.get('article')
+    entities = request.json.get('entities')
 
-    article_services.add_article(                \
-                            miner=miner,         \
-                            uri=uri,             \
-                            content=content,     \
-                            publ_date=publ_date, \
-                            source=source)
+    with ArticleService(article, entities) as article_svc:
+        article_svc.persist_all()
 
-    resp_content = {"data": [], "message": "Article added successfully"}
-    return build_response(app, resp_content)
+    content = {"data": [], "message": "Article added successfully"}
+    return build_response(app, content)
+
+########################################################################
+# HELPER FUNCTIONS
+#######################################################################
 
 def build_response(app, content, status_code=constants.SUCCESSFUL):
     """
