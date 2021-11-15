@@ -1,7 +1,7 @@
 import constants
-from db import user_services
-from db.authorizer import Authorizer
 from db.article_service import ArticleService
+from db.authorizer import Authorizer
+from db.user_service import UserService
 from flask import Flask, request
 import json
 from markdown import markdown
@@ -36,7 +36,9 @@ def create_user():
     name = request.json.get('name')
     code = request.json.get('code')
 
-    api_key = user_services.add_user(name=name, code=code, session=None)
+    with UserService() as user_srv:
+        api_key = user_srv.add(name=name, code=code)
+
     content = {"data": [{"X-Api-Key": api_key}], 'message': f"Added user {name}:{code} successfully"}
     response = build_response(app, content)
     return response
