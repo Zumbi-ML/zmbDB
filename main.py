@@ -1,5 +1,6 @@
 import constants
-from db import user_services, authorizer
+from db import user_services
+from db.authorizer import Authorizer
 from db.article_service import ArticleService
 from flask import Flask, request
 import json
@@ -93,7 +94,8 @@ def is_api_key_valid(api_key):
     """
     Checks whether the api key is valid in the DB
     """
-    #return authorizer.is_api_key_valid(api_key)
+    #with Authorizer() as authorizer:
+    #    return authorizer.is_api_key_valid(api_key)
     return True
 
 api_host = get_property("api_host")
