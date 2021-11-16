@@ -1,27 +1,9 @@
 from db.authorizer import Authorizer
+from db.base_service import BaseService
 from db.tables.tb_definitions import TableUsers
 from db.credentials import get_session
 
-class UserService(object):
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        self._session = get_session()
-
-    def __enter__(self):
-        """
-        On object enter
-        """
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        On object exit
-        """
-        self._session.commit()
-        self._session.close()
+class UserService(BaseService):
 
     def add_user(self, name, code):
         """

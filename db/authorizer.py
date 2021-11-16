@@ -1,31 +1,14 @@
 from constants import API_KEY_SIZE
+from db.base_service import BaseService
 from db.credentials import get_session
 from db.tables.tb_definitions import TableUsers
 from random import randint
 
-class Authorizer(object):
+class Authorizer(BaseService):
     """
     Handles authorization issues in the database
     """
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        self._session = get_session()
-
-    def __enter__(self):
-        """
-        On enter actions
-        """
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        On exit actions
-        """
-        self._session.close()
-
+    # Static method
     def create_api_key(n=API_KEY_SIZE):
         """
         Creates an API key_size
