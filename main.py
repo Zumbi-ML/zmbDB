@@ -8,7 +8,7 @@ from markdown import markdown
 from utils import get_property
 
 app = Flask(__name__)
-debug_mode = get_property("debug_mode") == "True"
+debug_mode = get_property("flask_debug_mode") == "True"
 app.config["DEBUG"] = debug_mode
 
 @app.route("/", methods=["GET", "POST"])
