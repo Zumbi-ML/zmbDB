@@ -19,6 +19,22 @@ def index():
     with open('README.md', 'r') as f:
         return markdown(f.read())
 
+@app.route("/articles", methods=["POST"])
+def get_matching_articles():
+    """
+    Retrieves the articles that matches the passed entities
+
+    Example of incoming JSON data
+    {"query": {"sources":["src1"],"media":["med1","med2","med3"]}}
+    """
+    entities = request.json.get('query')
+
+    with ArticleService() as article_svc:
+        result_map = article_svc.get_entities(entities)
+
+    content = {"data": result_map, "message": "Success"}
+    return build_response(app, content)
+
 #################################################################
 # ADMIN FUNCTIONS
 ##################################################################
@@ -70,6 +86,10 @@ def create_article():
 
     content = {"data": [], "message": "Article added successfully"}
     return build_response(app, content)
+
+
+
+
 
 ########################################################################
 # HELPER FUNCTIONS

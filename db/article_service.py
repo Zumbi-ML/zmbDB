@@ -1,18 +1,70 @@
-from db.credentials import get_session
-from db.entities import entities_map
+from db.base_service import BaseService
+from db.e_map import *
 from db.tables.tb_definitions import *
-from utils import str2date
+from db.tb_searchers.searchers import *
 
-class ArticleService(object):
-    def __init__(self, article, entities):
+class ArticleService(BaseService):
+    def __init__(self, article=None, entities=None):
         """
         Constructor
         """
+        super().__init__()
         self._article = article
         self._entities = entities
-        self._session = get_session()
         self._hashed_uri = None
 
+    ###########################################################################
+    # Query Methods
+    ###########################################################################
+    def get_entities(self, entities_map):
+        maps = []
+        with SourcesSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[SOURCES]))
+
+        with MediaSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[MEDIA]))
+
+        with MovementsSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[MOVEMENTS]))
+
+        with PeopleSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[PEOPLE]))
+
+        with EducationalSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[EDUCATIONAL]))
+
+        with PrivateSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[PRIVATE]))
+
+        with PublicSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[PUBLIC]))
+
+        with ActionsSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[ACTIONS]))
+
+        with WorksSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[WORKS]))
+
+        with CitiesSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[CITIES]))
+
+        with StatesSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[STATES]))
+
+        with CountriesSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[COUNTRIES]))
+
+        with LawsSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[LAWS]))
+
+        with PolicesSearcher(self._session) as searcher:
+            maps.append(searcher.query(entities_map[POLICES]))
+
+        return self._build_return_map(maps)
+
+    ###########################################################################
+    # Creation Methods
+    ###########################################################################
     def persist_all(self):
         """
         Persist the article and its entities into the database
@@ -80,15 +132,44 @@ class ArticleService(object):
         for police in self._entities['polices']:
             self._session.add(TablePolices(hashed_uri=self._hashed_uri, name=police))
 
-    def __enter__(self):
+    def _build_return_map(self, input_maps):
         """
-        Return the instance
+        Combines all result rows into a coherent dict
+        Args: input_maps:
+              A list of dictionaries.
+              E.g.:
+              [
+                {001: {'sources': 'src1'}, 002: {'sources': 'src2'}},
+                {001: {'media': 'med1'}},
+                {002: {'people': 'p2'}},
+              ]
+              , where 001 and 002 are hashed URIs.
+        Return
+            output_map
+            {
+                001: {'sources': ['src1'], 'media': ['med1'], 'people': []...},
+                002: {'sources': ['src2'], 'media': [], 'people': ['p2']}
+            }
         """
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        Commit and close the session
-        """
-        self._session.commit()
-        self._session.close()
+        output_map = {}
+        # E.g.
+        # {001: {'sources': 'src1'}, 002: {'sources': 'src2'}}
+        for input_map in input_maps:
+            # hash_: 001
+            for hash_ in input_map.keys():
+                if (not hash_ in output_map.keys()):
+                    # Creates a map for a hashed URI. E.g.,
+                    # {001: {} }
+                    output_map[hash_] = {}
+                # E.g., 'sources'
+                for entity_ in input_map[hash_].keys():
+                    if (not entity_ in output_map[hash_].keys()):
+                        # Creates a list for the values for an entity. E.g.,
+                        # {001: {'sources': []} }
+                        output_map[hash_][entity_] = []
+                    # Obtains the values for an entity
+                    # {001: {'sources': 'src1'} => 'src1'
+                    element = input_map[hash_][entity_]
+                    # {001: {'sources': ['src1']}}
+                    output_map[hash_][entity_].append(element)
+        return output_map
