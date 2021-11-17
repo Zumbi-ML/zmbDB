@@ -2,6 +2,7 @@ import constants
 from db.article_service import ArticleService
 from db.authorizer import Authorizer
 from db.user_service import UserService
+from db.entity_service import EntityService
 from flask import Flask, request
 import json
 from markdown import markdown
@@ -34,6 +35,19 @@ def get_matching_articles():
 
     content = {"data": result_map, "message": "Success"}
     return build_response(app, content)
+
+@app.route("/summary", methods=["POST"])
+def summary():
+    """
+    Summarize all the entities
+    """
+
+    with EntityService() as service:
+        result_map = service.summary()
+
+    content = {"data": result_map, "message": "Success"}
+    return build_response(app, content)
+
 
 #################################################################
 # ADMIN FUNCTIONS
