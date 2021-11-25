@@ -13,57 +13,109 @@ class ArticleService(BaseService):
         self._entities = entities
         self._hashed_uri = None
 
-    ###########################################################################
+    def get_articles_by_hash(self, hashed_uri):
+        return self._search(by=SearchType.HASH, params=hashed_uri)
+
+    def get_articles_by_criteria(self, params):
+        return self._search(by=SearchType.NAME, params=params)
+
     # Query Methods
-    ###########################################################################
-    def get_entities(self, entities_map):
+    # =======================================================
+    def _search(self, by, params):
         maps = []
+
         with SourcesSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[SOURCES]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with MediaSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[MEDIA]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with MovementsSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[MOVEMENTS]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with PeopleSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[PEOPLE]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with EducationalSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[EDUCATIONAL]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with PrivateSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[PRIVATE]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with PublicSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[PUBLIC]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with ActionsSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[ACTIONS]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with WorksSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[WORKS]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with CitiesSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[CITIES]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with StatesSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[STATES]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with CountriesSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[COUNTRIES]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with LawsSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[LAWS]))
+            if (by == SearchType.NAME):
+                by_law = SearchType.TITLE
+            elif (by == SearchType.HASH):
+                by_law = SearchType.HASH
+            searcher.set_search_criteria(by_law, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         with PolicesSearcher(self._session) as searcher:
-            maps.append(searcher.query(entities_map[POLICES]))
+            searcher.set_search_criteria(by, params)
+            result = searcher.query()
+            if (result):
+                maps.append(result)
 
         return self._build_return_map(maps)
 
     ###########################################################################
-    # Creation Methods
+    # Persistence Methods
     ###########################################################################
     def persist_all(self):
         """
@@ -161,15 +213,24 @@ class ArticleService(BaseService):
                     # Creates a map for a hashed URI. E.g.,
                     # {001: {} }
                     output_map[hash_] = {}
-                # E.g., 'sources'
-                for entity_ in input_map[hash_].keys():
-                    if (not entity_ in output_map[hash_].keys()):
-                        # Creates a list for the values for an entity. E.g.,
-                        # {001: {'sources': []} }
-                        output_map[hash_][entity_] = []
+                # E.g.
+                # 'sources'
+                for entity_ in input_map[hash_]:
                     # Obtains the values for an entity
-                    # {001: {'sources': 'src1'} => 'src1'
-                    element = input_map[hash_][entity_]
+                    # {001: {'sources': ['src1']} => ['src1']
+                    elements_lst = input_map[hash_][entity_]
                     # {001: {'sources': ['src1']}}
-                    output_map[hash_][entity_].append(element)
+                    output_map[hash_][entity_] = elements_lst
+
+        # Fill in missing entities
+        # E.g.
+        # hash_: 001
+        for hash_ in output_map.keys():
+            # E.g.
+            # entity_: sources
+            for entity_ in ALL_ENTITIES:
+                # if an entity_ is not in the output_map
+                if (not entity_ in output_map[hash_].keys()):
+                    # Creates an entry with an empty list in output_map
+                    output_map[hash_][entity_] = []
         return output_map

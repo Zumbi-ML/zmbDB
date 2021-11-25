@@ -12,3 +12,19 @@ COUNTRIES = "countries"
 WORKS = "works"
 POLICES = "polices"
 LAWS = "laws"
+
+ALL_ENTITIES =  \
+    [SOURCES,
+    MEDIA,
+    MOVEMENTS,
+    PEOPLE,
+    EDUCATIONAL,
+    PRIVATE,
+    PUBLIC,
+    ACTIONS,
+    CITIES,
+    STATES,
+    COUNTRIES,
+    WORKS,
+    POLICES,
+    LAWS]

@@ -1,40 +1,7 @@
-import constants
-from db.article_service import ArticleService
-from db.authorizer import Authorizer
-from db.user_service import UserService
-from db.entity_service import EntityService
-from flask import Flask, request
-import json
-from markdown import markdown
+# encoding: utf-8
 from utils import get_property
-
-app = Flask(__name__)
-debug_mode = get_property("flask_debug_mode") == "True"
-app.config["DEBUG"] = debug_mode
-
-@app.route("/", methods=["GET", "POST"])
-def index():
-    """
-    Presents the Zumbi DB API README.md
-    """
-    with open('README.md', 'r') as f:
-        return markdown(f.read())
-
-@app.route("/articles", methods=["POST"])
-def get_matching_articles():
-    """
-    Retrieves the articles that matches the passed entities
-
-    Example of incoming JSON data
-    {"query": {"sources":["src1"],"media":["med1","med2","med3"]}}
-    """
-    entities = request.json.get('query')
-
-    with ArticleService() as article_svc:
-        result_map = article_svc.get_entities(entities)
-
-    content = {"data": result_map, "message": "Success"}
-    return build_response(app, content)
+from api import app
+import constants
 
 @app.route("/summary", methods=["POST"])
 def summary():
@@ -49,9 +16,8 @@ def summary():
     return build_response(app, content)
 
 
-#################################################################
-# ADMIN FUNCTIONS
-##################################################################
+# Admin functions
+# =======================================================
 
 @app.route("/user/create", methods=["POST"])
 def create_user():
@@ -102,13 +68,8 @@ def create_article():
     return build_response(app, content)
 
 
-
-
-
-########################################################################
-# HELPER FUNCTIONS
-#######################################################################
-
+# Helper functions
+# ==============================================================================
 def build_response(app, content, status_code=constants.SUCCESSFUL):
     """
     Builds a JSON response
@@ -134,6 +95,11 @@ def is_api_key_valid(api_key):
     #    return authorizer.is_api_key_valid(api_key)
     return True
 
-api_host = get_property("api_host")
-api_port = int(get_property("api_port"))
-app.run(host=api_host, port=api_port, debug=debug_mode)
+# Run the RESTful API server
+# ===========================================================
+if __name__ == '__main__':
+    debug_mode = get_property("flask_debug_mode") == "True"
+    app.config["DEBUG"] = debug_mode
+    api_host = get_property("api_host")
+    api_port = int(get_property("api_port"))
+    app.run(host=api_host, port=api_port, debug=debug_mode)
