@@ -4,11 +4,11 @@ from db.tables.tb_definitions import *
 from db.tb_searchers.searchers import *
 
 class ArticleService(BaseService):
-    def __init__(self, article=None, entities=None):
+    def __init__(self, session=None, article=None, entities=None):
         """
         Constructor
         """
-        super().__init__()
+        super().__init__(session=session)
         self._article = article
         self._entities = entities
         self._hashed_uri = None
