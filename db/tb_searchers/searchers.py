@@ -397,7 +397,7 @@ class LawsSearcher(BaseSearcher):
 
         result_map = {}
         for row in results:
-            result_map[row.hashed_uri] = {LAWS: row.title}
+            result_map[row.hashed_uri] = {LAWS: [row.title]}
         return result_map
 
     def summarize(self, by=None):
