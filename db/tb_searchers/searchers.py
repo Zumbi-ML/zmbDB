@@ -64,6 +64,9 @@ class SourcesSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[SOURCES]
+            if (not params):
+                return None
+
             filter_group = [TableSources.name.like(f"%{name}%") for name in params]
             results = self._session.query(TableSources).filter(or_(*filter_group))
 
@@ -90,6 +93,8 @@ class MediaSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[MEDIA]
+            if (not params):
+                return None
 
             filter_group = [TableMedia.name.like(f"%{name}%") for name in params]
             results = self._session.query(TableMedia).filter(or_(*filter_group))
@@ -117,6 +122,9 @@ class MovementsSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[MOVEMENTS]
+            if (not params):
+                return None
+
             filter_group = [TableMovements.name.like(f"%{name}%") for name in params]
             results = self._session.query(TableMovements).filter(or_(*filter_group))
 
@@ -142,6 +150,8 @@ class PeopleSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[PEOPLE]
+            if (not params):
+                return None
 
             filter_group = [TablePeople.name.like(f"%{name}%") for name in params]
             results = self._session.query(TablePeople).filter(or_(*filter_group))
@@ -169,6 +179,8 @@ class EducationalSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[EDUCATIONAL]
+            if (not params):
+                return None
 
             filter_group = [TableEducationalInstitutions.name.like(f"%{name}%") \
                                                         for name in params]
@@ -196,6 +208,8 @@ class PrivateSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[PRIVATE]
+            if (not params):
+                return None
 
             filter_group = [TablePrivateInstitutions.name.like(f"%{name}%")    \
                                                         for name in params]
@@ -223,6 +237,8 @@ class PublicSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[PUBLIC]
+            if (not params):
+                return None
 
             filter_group = [TablePublicInstitutions.name.like(f"%{name}%")         \
                                                         for name in params]
@@ -251,6 +267,8 @@ class ActionsSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[ACTIONS]
+            if (not params):
+                return None
 
             filter_group = [TableRacistActions.name.like(f"%{name}%")                     \
                                                         for name in params]
@@ -278,6 +296,8 @@ class WorksSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[WORKS]
+            if (not params):
+                return None
 
             filter_group = [TableWorks.name.like(f"%{name}%") for name in params]
             results = self._session.query(TableWorks).filter(or_(*filter_group))
@@ -306,6 +326,8 @@ class CitiesSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[CITIES]
+            if (not params):
+                return None
 
             filter_group = [TableCities.name.like(f"%{name}%") for name in params]
             results = self._session.query(TableCities)                         \
@@ -333,6 +355,8 @@ class StatesSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[STATES]
+            if (not params):
+                return None
 
             filter_group = [TableStates.name.like(f"%{name}%") for name in params]
             results = self._session.query(TableStates).filter(or_(*filter_group))
@@ -359,6 +383,8 @@ class CountriesSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[COUNTRIES]
+            if (not params):
+                return None
 
             filter_group = [TableCountries.name.like(f"%{name}%") for name in params]
             results = self._session.query(TableCountries)                      \
@@ -386,6 +412,8 @@ class LawsSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[LAWS]
+            if (not params):
+                return None
 
             filter_group = [TableLaws.title.like(f"%{title}%") for title in params]
             results = self._session.query(TableLaws).filter(or_(*filter_group))
@@ -418,6 +446,8 @@ class PolicesSearcher(BaseSearcher):
                 return None
 
             params = self._criteria[POLICES]
+            if (not params):
+                return None
 
             filter_group = [TablePolices.name.like(f"%{name}%") for name in params]
             results = self._session.query(TablePolices).filter(or_(*filter_group))
