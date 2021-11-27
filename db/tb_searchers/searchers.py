@@ -26,7 +26,7 @@ class BaseSearcher(object):
         """
         raise NotImplementedError(msg)
 
-    def summarize(self, by=None):
+    def count(self):
         msg = \
         """
         This is an abstract class.
@@ -77,11 +77,14 @@ class SourcesSearcher(BaseSearcher):
 
         return self._build_return_map(results, SOURCES)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TableSources.name)                     \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TableSources.name)                          \
                                             .group_by(TableSources.name).count()
-        return count
+
 
 class MediaSearcher(BaseSearcher):
 
@@ -106,11 +109,15 @@ class MediaSearcher(BaseSearcher):
 
         return self._build_return_map(results, MEDIA)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TableMedia.name)                     \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+
+        return self._session.query(TableMedia.name)                            \
                                             .group_by(TableMedia.name).count()
-        return count
+
 
 class MovementsSearcher(BaseSearcher):
 
@@ -135,11 +142,14 @@ class MovementsSearcher(BaseSearcher):
 
         return self._build_return_map(results, MOVEMENTS)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TableMovements.name)                   \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TableMovements.name)                        \
                                           .group_by(TableMovements.name).count()
-        return count
+
 
 class PeopleSearcher(BaseSearcher):
 
@@ -163,11 +173,14 @@ class PeopleSearcher(BaseSearcher):
 
         return self._build_return_map(results, PEOPLE)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TablePeople.name)                      \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TablePeople.name)                           \
                                             .group_by(TablePeople.name).count()
-        return count
+
 
 class EducationalSearcher(BaseSearcher):
 
@@ -194,11 +207,14 @@ class EducationalSearcher(BaseSearcher):
 
         return self._build_return_map(results, EDUCATIONAL)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TableEducationalInstitutions.name)     \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TableEducationalInstitutions.name)          \
                             .group_by(TableEducationalInstitutions.name).count()
-        return count
+
 
 class PrivateSearcher(BaseSearcher):
 
@@ -223,11 +239,14 @@ class PrivateSearcher(BaseSearcher):
 
         return self._build_return_map(results, PRIVATE)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TablePrivateInstitutions.name)         \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TablePrivateInstitutions.name)              \
                                 .group_by(TablePrivateInstitutions.name).count()
-        return count
+
 
 class PublicSearcher(BaseSearcher):
 
@@ -242,21 +261,24 @@ class PublicSearcher(BaseSearcher):
 
             filter_group = [TablePublicInstitutions.name.like(f"%{name}%")         \
                                                         for name in params]
-            results = self._session.query(TablePublicInstitutions)                 \
+            results = self._session.query(TablePublicInstitutions)              \
                                                         .filter(or_(*filter_group))
 
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
-            results = self._session.query(TablePublicInstitutions)                      \
+            results = self._session.query(TablePublicInstitutions)             \
                                     .filter(TablePublicInstitutions.hashed_uri == params)
 
         return self._build_return_map(results, PUBLIC)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TablePublicInstitutions.name)         \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TablePublicInstitutions.name)               \
                                 .group_by(TablePublicInstitutions.name).count()
-        return count
+
 
 class ActionsSearcher(BaseSearcher):
 
@@ -270,7 +292,7 @@ class ActionsSearcher(BaseSearcher):
             if (not params):
                 return None
 
-            filter_group = [TableRacistActions.name.like(f"%{name}%")                     \
+            filter_group = [TableRacistActions.name.like(f"%{name}%")          \
                                                         for name in params]
             results = self._session.query(TableRacistActions).filter(or_(*filter_group))
 
@@ -281,11 +303,14 @@ class ActionsSearcher(BaseSearcher):
 
         return self._build_return_map(results, ACTIONS)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TableRacistActions.name)         \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TableRacistActions.name)                    \
                                 .group_by(TableRacistActions.name).count()
-        return count
+
 
 class WorksSearcher(BaseSearcher):
 
@@ -310,11 +335,14 @@ class WorksSearcher(BaseSearcher):
 
         return self._build_return_map(results, WORKS)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TableWorks.name)         \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TableWorks.name)         \
                                 .group_by(TableWorks.name).count()
-        return count
+
 
 class CitiesSearcher(BaseSearcher):
 
@@ -340,11 +368,14 @@ class CitiesSearcher(BaseSearcher):
 
         return self._build_return_map(results, CITIES)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TableCities.name)         \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TableCities.name)                           \
                                 .group_by(TableCities.name).count()
-        return count
+
 
 class StatesSearcher(BaseSearcher):
 
@@ -368,11 +399,14 @@ class StatesSearcher(BaseSearcher):
 
         return self._build_return_map(results, STATES)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TableStates.name)         \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TableStates.name)                           \
                                 .group_by(TableStates.name).count()
-        return count
+
 
 class CountriesSearcher(BaseSearcher):
 
@@ -397,11 +431,14 @@ class CountriesSearcher(BaseSearcher):
 
         return self._build_return_map(results, COUNTRIES)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TableCountries.name)                  \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TableCountries.name)                        \
                                           .group_by(TableCountries.name).count()
-        return count
+
 
 class LawsSearcher(BaseSearcher):
 
@@ -428,11 +465,14 @@ class LawsSearcher(BaseSearcher):
             result_map[row.hashed_uri] = {LAWS: [row.title]}
         return result_map
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TableLaws.title)                       \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TableLaws.title)                            \
                                               .group_by(TableLaws.title).count()
-        return count
+
 
 class PolicesSearcher(BaseSearcher):
 
@@ -460,8 +500,10 @@ class PolicesSearcher(BaseSearcher):
 
         return self._build_return_map(results, POLICES)
 
-    def summarize(self, by=None):
-        if (not by):
-            count = self._session.query(TablePolices.name)                  \
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TablePolices.name)                          \
                                 .group_by(TablePolices.name).count()
-        return count

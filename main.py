@@ -3,17 +3,6 @@ from utils import get_property
 from api import app
 import constants
 
-@app.route("/summary", methods=["POST"])
-def summary():
-    """
-    Summarize all the entities
-    """
-
-    with EntityService() as service:
-        result_map = service.summary()
-
-    content = {"data": result_map, "message": "Success"}
-    return build_response(app, content)
 
 
 # Admin functions

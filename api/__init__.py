@@ -8,6 +8,7 @@ from flask import Flask, Blueprint
 from flask_restx import Api
 from .articles.resources import article as articles_ns
 from .users.resources import user as users_ns
+from .stats.resources import stats as stats_ns
 from markdown import markdown
 
 app = Flask(__name__)
@@ -22,6 +23,7 @@ This is the Zumbi API
 api = Api(app, title="Zumbi API", version='1.0', description=api_desc, prefix='/api/v1')
 api.add_namespace(articles_ns, path='/articles')
 api.add_namespace(users_ns, path='/users')
+api.add_namespace(stats_ns, path='/stats')
 
 @app.route("/", methods=["GET", "POST"])
 def index():
