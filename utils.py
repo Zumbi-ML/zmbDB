@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 from datetime import date
 
 def get_property(property):

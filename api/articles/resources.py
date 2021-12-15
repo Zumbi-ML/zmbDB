@@ -1,38 +1,25 @@
 # encoding: utf-8
 from db.article_service import ArticleService
-from db.e_map import *
-from flask import request
+from labels import *
 from flask_restx import Resource, Namespace, reqparse
+import json
+import article_manager
+import json
 
 parser = reqparse.RequestParser()
-parser.add_argument(SOURCES, type=str, action="split")
-parser.add_argument(MEDIA, type=str, action="split")
-parser.add_argument(MOVEMENTS, type=str, action="split")
-parser.add_argument(PEOPLE, type=str, action="split")
-parser.add_argument(EDUCATIONAL, type=str, action="split")
-parser.add_argument(PRIVATE, type=str, action="split")
-parser.add_argument(PUBLIC, type=str, action="split")
-parser.add_argument(ACTIONS, type=str, action="split")
-parser.add_argument(CITIES, type=str, action="split")
-parser.add_argument(STATES, type=str, action="split")
-parser.add_argument(COUNTRIES, type=str, action="split")
-parser.add_argument(WORKS, type=str, action="split")
-parser.add_argument(POLICES, type=str, action="split")
-parser.add_argument(LAWS, type=str, action="split")
+parser.add_argument(AUTHORS, type=str)
+parser.add_argument(CONTENT, type=str)
+parser.add_argument(ENTITIES, type=str)
+parser.add_argument(KEYWORDS, type=str)
+parser.add_argument(MINER, type=str)
+parser.add_argument(PUBLISHED_TIME, type=str)
+parser.add_argument(SECTION, type=str)
+parser.add_argument(SITE_NAME, type=str)
+parser.add_argument(SOURCE, type=str)
+parser.add_argument(TITLE, type=str)
+parser.add_argument(URL, type=str)
 
 article = Namespace('Article', description='Article resources')
-"""
-article_mdl = article.model('ArticleModel', {
-    'hash': fields.Integer
-})
-"""
-
-def clean_dict(dic):
-    new_dic = {}
-    for key in dic.keys():
-        if (dic[key] != None):
-            new_dic[key] = dic[key]
-    return new_dic
 
 @article.route('/')
 class ArticleResource(Resource):
@@ -46,18 +33,39 @@ class ArticleResource(Resource):
         Example of incoming JSON data
         {"sources":["src1"], "media":["med1","med2","med3"]}}
         """
-        entity_criteria = clean_dict(parser.parse_args())
+        entity_criteria = parser.parse_args()
         with ArticleService() as article_svc:
              return article_svc.get_articles_by_criteria(entity_criteria)
 
-    #@article.expect(article_mdl)
+    @article.expect(parser)
     def post(self):
-        return True, 200
+        """
+        Adds an article to the database.
+        Expected format:
+        {
+            "authors": "author1,author2",
+            "content": "article content",
+            "entities": {"<entity_label>": ["<entity1>", "<entity2>"]},
+            "keywords": "keyword1,keyword2,..."
+            "miner": "zmb-scrapper",
+            "published_time": "YYYY-mm-dd",
+            "section": "The section of the paper",
+            "site_name": "The name of the site",
+            "source": "The name of the source",
+            "title": "the article's title",
+            "url": "http://domain.com/article.shtml"
+        }
+        """
+        parsed_args = parser.parse_args()
+        article_map = article_manager.parsed_args_2_article_map(parsed_args)
+        print(json.dumps(article_map, indent=4, sort_keys=True))
+        article_manager.add_article(article_map)
+        return {"success", True}, 200
 
 
-@article.route('/<hashed_uri>')
+@article.route('/<hashed_url>')
 class ArticleIdResource(Resource):
     @article.response(200, "Success")
-    def get(self, hashed_uri:int):
+    def get(self, hashed_url:int):
         with ArticleService() as article_svc:
-            return article_svc.get_articles_by_hash(hashed_uri)
+            return article_svc.get_articles_by_hash(hashed_url)

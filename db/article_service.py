@@ -1,7 +1,8 @@
 from db.base_service import BaseService
-from db.e_map import *
+from labels import *
 from db.tables.tb_definitions import *
 from db.tb_searchers.searchers import *
+from datetime import date
 
 class ArticleService(BaseService):
     def __init__(self, session=None, article=None, entities=None):
@@ -11,16 +12,16 @@ class ArticleService(BaseService):
         super().__init__(session=session)
         self._article = article
         self._entities = entities
-        self._hashed_uri = None
+        self._hashed_url = None
 
-    def get_articles_by_hash(self, hashed_uri):
-        return self._search(by=SearchType.HASH, params=hashed_uri)
+    def get_articles_by_hash(self, hashed_url):
+        return self._search(by=SearchType.HASH, params=hashed_url)
 
     def get_articles_by_criteria(self, params):
         return self._search(by=SearchType.NAME, params=params)
 
     # Query Methods
-    # =======================================================
+    # ==========================================================================
     def _search(self, by, params):
         maps = []
 
@@ -114,9 +115,18 @@ class ArticleService(BaseService):
 
         return self._build_return_map(maps)
 
-    ###########################################################################
     # Persistence Methods
-    ###########################################################################
+    # ==========================================================================
+
+    def persist_article_n_entities(self, article_map):
+        """
+        Persist an article and its entities
+        """
+        self._hashed_url = article_map['hashed_url']
+        entities_map = article_map[ENTITIES]
+        self.add_article(article_map)
+        self.add_entities(entities_map)
+
     def persist_all(self):
         """
         Persist the article and its entities into the database
@@ -124,65 +134,83 @@ class ArticleService(BaseService):
         self.add_article()
         self.add_entities()
 
-    def add_article(self):
+    def add_article(self, article_map):
         """
-        Add the article to the session
+        Adds the article_map to the session
         """
-        self._hashed_uri = hash(self._article['uri'])
+
         article = TableArticles(
-                        uri = self._article['uri'],                 \
-                        hashed_uri = self._hashed_uri,              \
-                        content = self._article['content'],         \
-                        publ_date = self._article['publ_date'],     \
-                        source = self._article['source'],           \
-                        miner = self._article['miner'])
+                    hashed_url = self._hashed_url,
+                    url = article_map[URL],
+                    content = article_map[CONTENT],
+                    published_time=article_map[PUBLISHED_TIME],
+                    title=article_map[TITLE],
+                    keywords=article_map[KEYWORDS],
+                    section=article_map[SECTION],
+                    site_name=article_map[SITE_NAME],
+                    authors=article_map[AUTHORS],
+                    miner = article_map[MINER],
+                    source = article_map[SOURCE],
+                    added = date.today(),
+                    last_modified = date.today(),)
         self._session.add(article)
 
-    def add_entities(self):
+    def add_entities(self, entities_map):
         """
         Add the article entities to the session
         """
-        for source in self._entities['sources']:
-            self._session.add(TableSources(hashed_uri=self._hashed_uri, name=source))
 
-        for media in self._entities['media']:
-            self._session.add(TableMedia(hashed_uri=self._hashed_uri, name=media))
+        if (MEDIA in entities_map.keys()):
+            for media in entities_map[MEDIA]:
+                self._session.add(TableMedia(hashed_url=self._hashed_url, name=media))
 
-        for movement in self._entities['movements']:
-            self._session.add(TableMovements(hashed_uri=self._hashed_uri, name=movement))
+        if (MOVEMENTS in entities_map.keys()):
+            for movement in entities_map[MOVEMENTS]:
+                self._session.add(TableMovements(hashed_url=self._hashed_url, name=movement))
 
-        for person in self._entities['people']:
-            self._session.add(TablePeople(hashed_uri=self._hashed_uri, name=person))
+        if (PEOPLE in entities_map.keys()):
+            for person in entities_map[PEOPLE]:
+                self._session.add(TablePeople(hashed_url=self._hashed_url, name=person))
 
-        for educ_inst in self._entities['educational']:
-            self._session.add(TableEducationalInstitutions(hashed_uri=self._hashed_uri, name=educ_inst))
+        if (EDUCATIONAL in entities_map.keys()):
+            for educ_inst in entities_map[EDUCATIONAL]:
+                self._session.add(TableEducationalInstitutions(hashed_url=self._hashed_url, name=educ_inst))
 
-        for priv_inst in self._entities['private']:
-            self._session.add(TablePrivateInstitutions(hashed_uri=self._hashed_uri, name=priv_inst))
+        if (PRIVATE in entities_map.keys()):
+            for priv_inst in entities_map[PRIVATE]:
+                self._session.add(TablePrivateInstitutions(hashed_url=self._hashed_url, name=priv_inst))
 
-        for publ_inst in self._entities['public']:
-            self._session.add(TablePublicInstitutions(hashed_uri=self._hashed_uri, name=publ_inst))
+        if (PUBLIC in entities_map.keys()):
+            for publ_inst in entities_map[PUBLIC]:
+                self._session.add(TablePublicInstitutions(hashed_url=self._hashed_url, name=publ_inst))
 
-        for action in self._entities['actions']:
-            self._session.add(TableRacistActions(hashed_uri=self._hashed_uri, name=action))
+        if (ACTIONS in entities_map.keys()):
+            for action in entities_map[ACTIONS]:
+                self._session.add(TableRacistActions(hashed_url=self._hashed_url, name=action))
 
-        for work in self._entities['works']:
-            self._session.add(TableWorks(hashed_uri=self._hashed_uri, name=work))
+        if (WORKS in entities_map.keys()):
+            for work in entities_map[WORKS]:
+                self._session.add(TableWorks(hashed_url=self._hashed_url, name=work))
 
-        for city in self._entities['cities']:
-            self._session.add(TableCities(hashed_uri=self._hashed_uri, name=city))
+        if (CITIES in entities_map.keys()):
+            for city in entities_map[CITIES]:
+                self._session.add(TableCities(hashed_url=self._hashed_url, name=city))
 
-        for state in self._entities['states']:
-            self._session.add(TableStates(hashed_uri=self._hashed_uri, name=state))
+        if (STATES in entities_map.keys()):
+            for state in entities_map[STATES]:
+                self._session.add(TableStates(hashed_url=self._hashed_url, name=state))
 
-        for country in self._entities['countries']:
-            self._session.add(TableCountries(hashed_uri=self._hashed_uri, name=country))
+        if (COUNTRIES in entities_map.keys()):
+            for country in entities_map[COUNTRIES]:
+                self._session.add(TableCountries(hashed_url=self._hashed_url, name=country))
 
-        for law in self._entities['laws']:
-            self._session.add(TableLaws(hashed_uri=self._hashed_uri, title=law, code=law))
+        if (LAWS in entities_map.keys()):
+            for law in entities_map[LAWS]:
+                self._session.add(TableLaws(hashed_url=self._hashed_url, title=law, code=law))
 
-        for police in self._entities['polices']:
-            self._session.add(TablePolices(hashed_uri=self._hashed_uri, name=police))
+        if (POLICES in entities_map.keys()):
+            for police in entities_map[POLICES]:
+                self._session.add(TablePolices(hashed_url=self._hashed_url, name=police))
 
     def _build_return_map(self, input_maps):
         """
@@ -195,7 +223,7 @@ class ArticleService(BaseService):
                 {001: {'media': 'med1'}},
                 {002: {'people': 'p2'}},
               ]
-              , where 001 and 002 are hashed URIs.
+              , where 001 and 002 are hashed urls.
         Return
             output_map
             {
@@ -210,7 +238,7 @@ class ArticleService(BaseService):
             # hash_: 001
             for hash_ in input_map.keys():
                 if (not hash_ in output_map.keys()):
-                    # Creates a map for a hashed URI. E.g.,
+                    # Creates a map for a hashed url. E.g.,
                     # {001: {} }
                     output_map[hash_] = {}
                 # E.g.

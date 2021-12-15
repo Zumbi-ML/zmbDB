@@ -2,7 +2,7 @@
 from utils import get_property
 from api import app
 import constants
-
+from dotenv import load_dotenv
 
 
 # Admin functions
@@ -34,7 +34,7 @@ def create_article():
     Creates an article
 
     Example of Incoming JSON
-    {"article": {"miner":"<miner>", "uri":"<uri>", "content":"<content>", "publ_date":"<publ_date>"}
+    {"article": {"miner":"<miner>", "url":"<url>", "content":"<content>", "publ_date":"<publ_date>"}
      "entities":
         {
          "sources": ["<source1>", "<source2>"],
