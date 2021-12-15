@@ -37,9 +37,9 @@ class BaseSearcher(object):
     def _build_return_map(self, results, entity_name):
         result_map = {}
         for row in results:
-            if (not row.hashed_uri in result_map.keys()):
-                result_map[row.hashed_uri] = {entity_name: []}
-            result_map[row.hashed_uri][entity_name].append(row.name)
+            if (not row.hashed_url in result_map.keys()):
+                result_map[row.hashed_url] = {entity_name: []}
+            result_map[row.hashed_url][entity_name].append(row.name)
         return result_map
 
     def __enter__(self):
@@ -73,7 +73,7 @@ class SourcesSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TableSources)                        \
-                                  .filter(TableSources.hashed_uri == params)
+                                  .filter(TableSources.hashed_url == params)
 
         return self._build_return_map(results, SOURCES)
 
@@ -105,7 +105,7 @@ class MediaSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TableMedia)                          \
-                                    .filter(TableMedia.hashed_uri == params).all()
+                                    .filter(TableMedia.hashed_url == params).all()
 
         return self._build_return_map(results, MEDIA)
 
@@ -138,7 +138,7 @@ class MovementsSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TableMovements)                      \
-                                .filter(TableMovements.hashed_uri == params)
+                                .filter(TableMovements.hashed_url == params)
 
         return self._build_return_map(results, MOVEMENTS)
 
@@ -169,7 +169,7 @@ class PeopleSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TablePeople)                         \
-                                   .filter(TablePeople.hashed_uri == params)
+                                   .filter(TablePeople.hashed_url == params)
 
         return self._build_return_map(results, PEOPLE)
 
@@ -203,7 +203,7 @@ class EducationalSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TableEducationalInstitutions)        \
-                  .filter(TableEducationalInstitutions.hashed_uri == params)
+                  .filter(TableEducationalInstitutions.hashed_url == params)
 
         return self._build_return_map(results, EDUCATIONAL)
 
@@ -235,7 +235,7 @@ class PrivateSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TablePrivateInstitutions)            \
-                        .filter(TablePrivateInstitutions.hashed_uri == params)
+                        .filter(TablePrivateInstitutions.hashed_url == params)
 
         return self._build_return_map(results, PRIVATE)
 
@@ -267,7 +267,7 @@ class PublicSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TablePublicInstitutions)             \
-                                    .filter(TablePublicInstitutions.hashed_uri == params)
+                                    .filter(TablePublicInstitutions.hashed_url == params)
 
         return self._build_return_map(results, PUBLIC)
 
@@ -299,7 +299,7 @@ class ActionsSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TableRacistActions)                  \
-                            .filter(TableRacistActions.hashed_uri == params)
+                            .filter(TableRacistActions.hashed_url == params)
 
         return self._build_return_map(results, ACTIONS)
 
@@ -331,7 +331,7 @@ class WorksSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TableWorks)                          \
-                                    .filter(TableWorks.hashed_uri == params)
+                                    .filter(TableWorks.hashed_url == params)
 
         return self._build_return_map(results, WORKS)
 
@@ -364,7 +364,7 @@ class CitiesSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TableCities)                         \
-                                   .filter(TableCities.hashed_uri == params)
+                                   .filter(TableCities.hashed_url == params)
 
         return self._build_return_map(results, CITIES)
 
@@ -395,7 +395,7 @@ class StatesSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TableStates)                         \
-                                   .filter(TableStates.hashed_uri == params)
+                                   .filter(TableStates.hashed_url == params)
 
         return self._build_return_map(results, STATES)
 
@@ -427,7 +427,7 @@ class CountriesSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TableCountries)                      \
-                                .filter(TableCountries.hashed_uri == params)
+                                .filter(TableCountries.hashed_url == params)
 
         return self._build_return_map(results, COUNTRIES)
 
@@ -458,11 +458,11 @@ class LawsSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TableLaws)                           \
-                                     .filter(TableLaws.hashed_uri == params)
+                                     .filter(TableLaws.hashed_url == params)
 
         result_map = {}
         for row in results:
-            result_map[row.hashed_uri] = {LAWS: [row.title]}
+            result_map[row.hashed_url] = {LAWS: [row.title]}
         return result_map
 
     def count(self):
@@ -496,7 +496,7 @@ class PolicesSearcher(BaseSearcher):
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
             results = self._session.query(TablePolices)                        \
-                                  .filter(TablePolices.hashed_uri == params)
+                                  .filter(TablePolices.hashed_url == params)
 
         return self._build_return_map(results, POLICES)
 

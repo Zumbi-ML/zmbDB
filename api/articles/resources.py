@@ -1,10 +1,12 @@
 # encoding: utf-8
+import article_manager
 from db.article_service import ArticleService
-from labels import *
 from flask_restx import Resource, Namespace, reqparse
 import json
-import article_manager
-import json
+from labels import *
+from zmbapi_exceptions import ZmbDuplicateEntryException
+from utils import build_response_json
+from constants import HTTP_OK, HTTP_CREATED, HTTP_INTERNAL_SERVER_ERROR
 
 parser = reqparse.RequestParser()
 parser.add_argument(AUTHORS, type=str)
@@ -58,10 +60,11 @@ class ArticleResource(Resource):
         """
         parsed_args = parser.parse_args()
         article_map = article_manager.parsed_args_2_article_map(parsed_args)
-        print(json.dumps(article_map, indent=4, sort_keys=True))
-        article_manager.add_article(article_map)
-        return {"success", True}, 200
-
+        try:
+            article_manager.add_article(article_map)
+        except ZmbDuplicateEntryException as e:
+            return build_response_json(str(e), HTTP_INTERNAL_SERVER_ERROR)
+        return build_response_json("success", HTTP_CREATED)
 
 @article.route('/<hashed_url>')
 class ArticleIdResource(Resource):

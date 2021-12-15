@@ -9,3 +9,11 @@ PERM_LEVEL = {
     "app": 3,
     "admin": 4,
 }
+
+
+# API constants
+# ==============================================================================
+
+HTTP_OK = 200
+HTTP_CREATED = 201
+HTTP_INTERNAL_SERVER_ERROR = 500

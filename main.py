@@ -4,7 +4,6 @@ from api import app
 import constants
 from dotenv import load_dotenv
 
-
 # Admin functions
 # =======================================================
 
