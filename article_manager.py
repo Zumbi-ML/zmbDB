@@ -4,7 +4,7 @@ from datetime import date
 from db.article_service import ArticleService
 import json
 from sqlalchemy.exc import IntegrityError
-from zmbapi_exceptions import ZmbDuplicateEntryException
+from zmbapi_exceptions import ZmbDuplicateKeyException
 
 def parsed_args_2_article_map(parsed_args):
     """
@@ -36,5 +36,4 @@ def add_article(article_map):
             article_svc.persist_article_n_entities(article_map)
     except IntegrityError as e:
         url = article_map['url']
-        msg = f"Article already in the database\n{url}"
-        raise ZmbDuplicateEntryException(msg)
+        raise ZmbDuplicateKeyException(f"{url}")

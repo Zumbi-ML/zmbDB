@@ -4,9 +4,9 @@ from db.article_service import ArticleService
 from flask_restx import Resource, Namespace, reqparse
 import json
 from labels import *
-from zmbapi_exceptions import ZmbDuplicateEntryException
-from utils import build_response_json
-from constants import HTTP_OK, HTTP_CREATED, HTTP_INTERNAL_SERVER_ERROR
+from zmbapi_exceptions import ZmbDuplicateKeyException
+from zmb_codes import StatusCode
+from responder import json_response
 
 parser = reqparse.RequestParser()
 parser.add_argument(AUTHORS, type=str)
@@ -63,9 +63,11 @@ class ArticleResource(Resource):
         hashed_url = hash(article_map['url'])
         try:
             article_manager.add_article(article_map)
-        except ZmbDuplicateEntryException as e:
-            return build_response_json(hashed_url, str(e), HTTP_INTERNAL_SERVER_ERROR)
-        return build_response_json(hashed_url, "success", HTTP_CREATED)
+        except ZmbDuplicateKeyException as e:
+            msg = f"{hashed_url}\t{str(e)}"
+            status_code = StatusCode.DUPLICATE_KEY.code()
+            return json_response(status_code=status_code, message=msg)
+        return json_response(status_code=StatusCode.SUCCESS.code(), message=article_map['url'])
 
 @article.route('/<hashed_url>')
 class ArticleIdResource(Resource):
