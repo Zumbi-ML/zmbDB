@@ -20,9 +20,3 @@ def get_property(property):
 def str2date(str_date, sep="-"):
     year, month, day = str_date.split(sep)
     return date(int(year), int(month), int(day))
-
-# Helper functions
-# ==============================================================================
-
-def build_response_json(hashed_url, message, http_status_code):
-    return {"hashed_url": hashed_url, "message": message, "http_status_code": http_status_code}
