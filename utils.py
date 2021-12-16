@@ -24,5 +24,5 @@ def str2date(str_date, sep="-"):
 # Helper functions
 # ==============================================================================
 
-def build_response_json(message, http_status_code):
-    return {"message": message, "http_status_code": http_status_code}
+def build_response_json(hashed_url, message, http_status_code):
+    return {"hashed_url": hashed_url, "message": message, "http_status_code": http_status_code}

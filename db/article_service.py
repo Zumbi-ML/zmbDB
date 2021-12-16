@@ -5,13 +5,11 @@ from db.tb_searchers.searchers import *
 from datetime import date
 
 class ArticleService(BaseService):
-    def __init__(self, session=None, article=None, entities=None):
+    def __init__(self, session=None, commit_on_exit=True, close_on_exit=True):
         """
         Constructor
         """
-        super().__init__(session=session)
-        self._article = article
-        self._entities = entities
+        super().__init__(session=session, commit_on_exit=commit_on_exit, close_on_exit=close_on_exit)
         self._hashed_url = None
 
     def get_articles_by_hash(self, hashed_url):

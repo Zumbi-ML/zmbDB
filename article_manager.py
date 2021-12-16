@@ -36,4 +36,5 @@ def add_article(article_map):
             article_svc.persist_article_n_entities(article_map)
     except IntegrityError as e:
         url = article_map['url']
-        raise ZmbDuplicateEntryException(f"Article already in the database\n{url}")
+        msg = f"Article already in the database\n{url}"
+        raise ZmbDuplicateEntryException(msg)

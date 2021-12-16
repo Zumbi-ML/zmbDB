@@ -60,15 +60,21 @@ class ArticleResource(Resource):
         """
         parsed_args = parser.parse_args()
         article_map = article_manager.parsed_args_2_article_map(parsed_args)
+        hashed_url = hash(article_map['url'])
         try:
             article_manager.add_article(article_map)
         except ZmbDuplicateEntryException as e:
-            return build_response_json(str(e), HTTP_INTERNAL_SERVER_ERROR)
-        return build_response_json("success", HTTP_CREATED)
+            return build_response_json(hashed_url, str(e), HTTP_INTERNAL_SERVER_ERROR)
+        return build_response_json(hashed_url, "success", HTTP_CREATED)
 
 @article.route('/<hashed_url>')
 class ArticleIdResource(Resource):
+
     @article.response(200, "Success")
     def get(self, hashed_url:int):
+        """
+        Gets an article's entities by hash
+        """
+
         with ArticleService() as article_svc:
             return article_svc.get_articles_by_hash(hashed_url)
