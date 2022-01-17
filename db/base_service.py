@@ -10,10 +10,7 @@ class BaseService(object):
         """
         Constructor
         """
-        if (not session):
-            self._session = get_session()
-        else:
-            self._session = session
+        self._session = get_session() if (not session) else session
         self._commit_on_exit = commit_on_exit
         self._close_on_exit = close_on_exit
 
