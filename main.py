@@ -58,7 +58,7 @@ def create_article():
 
 # Helper functions
 # ==============================================================================
-def build_response(app, content, status_code=constants.SUCCESSFUL):
+def build_response(app, content, status_code=None):
     """
     Builds a JSON response
     """

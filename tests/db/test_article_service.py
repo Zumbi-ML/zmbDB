@@ -1,18 +1,18 @@
 from db.article_service import ArticleService
-from db.e_map import *
+from labels import *
 
 def test_persist_one_article_n_one_entity(session):
     """
     Test
     """
     article, entities = make_a_dummy_article(1)
-    hashed_uri = article['hashed_uri']
+    hashed_url = article['hashed_url']
 
     with ArticleService(session, article, entities) as article_svc:
         article_svc.persist_all()
-        actual = article_svc.get_articles_by_hash(hashed_uri)
+        actual = article_svc.get_articles_by_hash(hashed_url)
 
-    expected = {hashed_uri: {SOURCES: ['src1'], MEDIA: ['med1'], MOVEMENTS: ['mov1'], PEOPLE: ['per1'], EDUCATIONAL: ['edu1'], PRIVATE: ['priv1'], PUBLIC: ['pub1'], ACTIONS: ['act1'], WORKS: ['wrk1'], CITIES: ['cit1'], STATES: ['sta1'], COUNTRIES: ['cntry1'], LAWS: ['law1'], POLICES: ['pol1']}}
+    expected = {hashed_url: {SOURCES: ['src1'], MEDIA: ['med1'], MOVEMENTS: ['mov1'], PEOPLE: ['per1'], EDUCATIONAL: ['edu1'], PRIVATE: ['priv1'], PUBLIC: ['pub1'], ACTIONS: ['act1'], WORKS: ['wrk1'], CITIES: ['cit1'], STATES: ['sta1'], COUNTRIES: ['cntry1'], LAWS: ['law1'], POLICES: ['pol1']}}
     assert actual == expected
 
 
@@ -31,8 +31,8 @@ def test_get_articles_with_partial_criteria_source(session):
     criteria = {SOURCES: ['src1']}
     with ArticleService(session=session) as article_svc:
         actual = article_svc.get_articles_by_criteria(criteria)
-    hashed_uri = hash("http://domain1.com")
-    expected = {hashed_uri: {SOURCES: ['src1'], MEDIA: [], MOVEMENTS: [], PEOPLE: [], EDUCATIONAL: [], PRIVATE: [], PUBLIC: [], ACTIONS: [], WORKS: [], CITIES: [], STATES: [], COUNTRIES: [], LAWS: [], POLICES: []}}
+    hashed_url = hash("http://domain1.com")
+    expected = {hashed_url: {SOURCES: ['src1'], MEDIA: [], MOVEMENTS: [], PEOPLE: [], EDUCATIONAL: [], PRIVATE: [], PUBLIC: [], ACTIONS: [], WORKS: [], CITIES: [], STATES: [], COUNTRIES: [], LAWS: [], POLICES: []}}
     assert actual == expected
 
 def test_get_articles_with_non_existent_criteria(session):
@@ -63,11 +63,11 @@ def test_get_articles_with_non_existent_criteria(session):
 # =======================================================
 
 def make_a_dummy_article(i):
-    uri = f"http://domain{i}.com"
-    hashed_uri = hash(uri)
+    url = f"http://domain{i}.com"
+    hashed_url = hash(url)
     article = {                                        \
-               "uri": f"{uri}",                        \
-               "hashed_uri": hashed_uri,               \
+               "url": f"{url}",                        \
+               "hashed_url": hashed_url,               \
                "content": f"Content of the News {i}",  \
                "publ_date": f"2021-10-0{i}",           \
                "source": f"src{i}",                    \

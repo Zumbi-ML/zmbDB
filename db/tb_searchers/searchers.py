@@ -1,6 +1,8 @@
 from db.e_map import *
 from db.tables.tb_definitions import *
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
+from zmb_labels import ZmbLabels
 
 class SearchType:
     NAME = "name"
@@ -47,11 +49,19 @@ class BaseSearcher(object):
 
     def __exit__(self, *exc_info):
         if (self._session and self._commit_on_exit):
-            self._session.commit()
+            try:
+                self._session.commit()
+            except IntegrityError as e:
+                self._session.close()
+                raise e
         if (self._session and self._close_on_exit):
             self._session.close()
 
 # Subclasses
+# =======================================================
+
+
+# Sources searcher
 # =======================================================
 
 class SourcesSearcher(BaseSearcher):
@@ -59,11 +69,12 @@ class SourcesSearcher(BaseSearcher):
     def query(self):
         """
         """
+        api_label = ZmbLabels.Article.Source.api()
         if (self._search_by == SearchType.NAME):
-            if (not SOURCES in self._criteria.keys()):
+            if (not api_label in self._criteria.keys()):
                 return None
 
-            params = self._criteria[SOURCES]
+            params = self._criteria[api_label]
             if (not params):
                 return None
 
@@ -195,15 +206,15 @@ class EducationalSearcher(BaseSearcher):
             if (not params):
                 return None
 
-            filter_group = [TableEducationalInstitutions.name.like(f"%{name}%") \
+            filter_group = [TableEducationals.name.like(f"%{name}%") \
                                                         for name in params]
-            results = self._session.query(TableEducationalInstitutions)        \
+            results = self._session.query(TableEducationals)        \
                                                      .filter(or_(*filter_group))
 
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
-            results = self._session.query(TableEducationalInstitutions)        \
-                  .filter(TableEducationalInstitutions.hashed_url == params)
+            results = self._session.query(TableEducationals)        \
+                  .filter(TableEducationals.hashed_url == params)
 
         return self._build_return_map(results, EDUCATIONAL)
 
@@ -212,8 +223,8 @@ class EducationalSearcher(BaseSearcher):
         Count the number of entries for this entity
         """
 
-        return self._session.query(TableEducationalInstitutions.name)          \
-                            .group_by(TableEducationalInstitutions.name).count()
+        return self._session.query(TableEducationals.name)          \
+                            .group_by(TableEducationals.name).count()
 
 
 class PrivateSearcher(BaseSearcher):
@@ -227,15 +238,15 @@ class PrivateSearcher(BaseSearcher):
             if (not params):
                 return None
 
-            filter_group = [TablePrivateInstitutions.name.like(f"%{name}%")    \
+            filter_group = [TablePrivates.name.like(f"%{name}%")    \
                                                         for name in params]
-            results = self._session.query(TablePrivateInstitutions)            \
+            results = self._session.query(TablePrivates)            \
                                                     .filter(or_(*filter_group))
 
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
-            results = self._session.query(TablePrivateInstitutions)            \
-                        .filter(TablePrivateInstitutions.hashed_url == params)
+            results = self._session.query(TablePrivates)            \
+                        .filter(TablePrivates.hashed_url == params)
 
         return self._build_return_map(results, PRIVATE)
 
@@ -244,8 +255,8 @@ class PrivateSearcher(BaseSearcher):
         Count the number of entries for this entity
         """
 
-        return self._session.query(TablePrivateInstitutions.name)              \
-                                .group_by(TablePrivateInstitutions.name).count()
+        return self._session.query(TablePrivates.name)              \
+                                .group_by(TablePrivates.name).count()
 
 
 class PublicSearcher(BaseSearcher):
@@ -259,15 +270,15 @@ class PublicSearcher(BaseSearcher):
             if (not params):
                 return None
 
-            filter_group = [TablePublicInstitutions.name.like(f"%{name}%")         \
+            filter_group = [TablePublics.name.like(f"%{name}%")         \
                                                         for name in params]
-            results = self._session.query(TablePublicInstitutions)              \
+            results = self._session.query(TablePublics)              \
                                                         .filter(or_(*filter_group))
 
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
-            results = self._session.query(TablePublicInstitutions)             \
-                                    .filter(TablePublicInstitutions.hashed_url == params)
+            results = self._session.query(TablePublics)             \
+                                    .filter(TablePublics.hashed_url == params)
 
         return self._build_return_map(results, PUBLIC)
 
@@ -276,8 +287,8 @@ class PublicSearcher(BaseSearcher):
         Count the number of entries for this entity
         """
 
-        return self._session.query(TablePublicInstitutions.name)               \
-                                .group_by(TablePublicInstitutions.name).count()
+        return self._session.query(TablePublics.name)               \
+                                .group_by(TablePublics.name).count()
 
 
 class ActionsSearcher(BaseSearcher):
@@ -292,14 +303,14 @@ class ActionsSearcher(BaseSearcher):
             if (not params):
                 return None
 
-            filter_group = [TableRacistActions.name.like(f"%{name}%")          \
+            filter_group = [TableActions.name.like(f"%{name}%")          \
                                                         for name in params]
-            results = self._session.query(TableRacistActions).filter(or_(*filter_group))
+            results = self._session.query(TableActions).filter(or_(*filter_group))
 
         elif (self._search_by == SearchType.HASH):
             params = self._criteria
-            results = self._session.query(TableRacistActions)                  \
-                            .filter(TableRacistActions.hashed_url == params)
+            results = self._session.query(TableActions)                  \
+                            .filter(TableActions.hashed_url == params)
 
         return self._build_return_map(results, ACTIONS)
 
@@ -499,6 +510,42 @@ class PolicesSearcher(BaseSearcher):
                                   .filter(TablePolices.hashed_url == params)
 
         return self._build_return_map(results, POLICES)
+
+    def count(self):
+        """
+        Count the number of entries for this entity
+        """
+
+        return self._session.query(TablePolices.name)                          \
+                                .group_by(TablePolices.name).count()
+
+
+
+class PoliticalSearcher(BaseSearcher):
+
+    def query(self):
+        """
+        """
+        api_label = ZmbLabels.Article.Entity.Political.api()
+        if (self._search_by == SearchType.NAME):
+
+            if (not api_label in self._criteria.keys()):
+                return None
+
+            params = self._criteria[api_label]
+            if (not params):
+                return None
+
+            filter_group = [TablePolices.name.like(f"%{name}%") for name in params]
+            results = self._session.query(TablePolices).filter(or_(*filter_group))
+
+
+        elif (self._search_by == SearchType.HASH):
+            params = self._criteria
+            results = self._session.query(TablePolices)                        \
+                                  .filter(TablePolices.hashed_url == params)
+
+        return self._build_return_map(results, api_label)
 
     def count(self):
         """

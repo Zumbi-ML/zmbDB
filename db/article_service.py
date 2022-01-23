@@ -1,10 +1,11 @@
 from db.base_service import BaseService
-from labels import *
 from db.tables.tb_definitions import *
 from db.tb_searchers.searchers import *
 from datetime import date
+from zmb_labels import ZmbLabels
 
 class ArticleService(BaseService):
+
     def __init__(self, session=None, commit_on_exit=True, close_on_exit=True):
         """
         Constructor
@@ -13,99 +14,48 @@ class ArticleService(BaseService):
         self._hashed_url = None
 
     def get_articles_by_hash(self, hashed_url):
+        """
+        Get article's by hash
+        """
         return self._search(by=SearchType.HASH, params=hashed_url)
 
     def get_articles_by_criteria(self, params):
+        """
+        Get article's by the entities' values. E.g., all entities that matches
+        the criteria 'São Paulo', which could be the name of a city or be part
+        of the name of a university and so on
+        """
         return self._search(by=SearchType.NAME, params=params)
 
-    # Query Methods
-    # ==========================================================================
+    def _all_searchers(self):
+        """
+        Returns the searchers for entities and relevant meta information
+        about the article such as Sources
+        """
+        return [SourcesSearcher(self._session),
+                MediaSearcher(self._session),
+                MovementsSearcher(self._session),
+                PeopleSearcher(self._session),
+                EducationalSearcher(self._session),
+                PrivateSearcher(self._session),
+                PublicSearcher(self._session),
+                WorksSearcher(self._session),
+                CitiesSearcher(self._session),
+                StatesSearcher(self._session),
+                CountriesSearcher(self._session),
+                #LawsSearcher(self._session),
+                PolicesSearcher(self._session),
+                PoliticalSearcher(self._session),
+                #ActionsSearcher(self._session),
+                ]
+
     def _search(self, by, params):
+        """
+        Invoke each searcher for a query
+        """
         maps = []
 
-        with SourcesSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with MediaSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with MovementsSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with PeopleSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with EducationalSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with PrivateSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with PublicSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with ActionsSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with WorksSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with CitiesSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with StatesSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with CountriesSearcher(self._session) as searcher:
-            searcher.set_search_criteria(by, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with LawsSearcher(self._session) as searcher:
-            if (by == SearchType.NAME):
-                by_law = SearchType.TITLE
-            elif (by == SearchType.HASH):
-                by_law = SearchType.HASH
-            searcher.set_search_criteria(by_law, params)
-            result = searcher.query()
-            if (result):
-                maps.append(result)
-
-        with PolicesSearcher(self._session) as searcher:
+        for searcher in self._all_searchers():
             searcher.set_search_criteria(by, params)
             result = searcher.query()
             if (result):
@@ -113,15 +63,15 @@ class ArticleService(BaseService):
 
         return self._build_return_map(maps)
 
-    # Persistence Methods
-    # ==========================================================================
-
     def persist_article_n_entities(self, article_map):
         """
         Persist an article and its entities
         """
         self._hashed_url = article_map['hashed_url']
-        entities_map = article_map[ENTITIES]
+
+        entities_lbl = ZmbLabels.Article.Entity.api()
+        entities_map = article_map[entities_lbl]
+
         self.add_article(article_map)
         self.add_entities(entities_map)
 
@@ -139,16 +89,17 @@ class ArticleService(BaseService):
 
         article = TableArticles(
                     hashed_url = self._hashed_url,
-                    url = article_map[URL],
-                    content = article_map[CONTENT],
-                    published_time=article_map[PUBLISHED_TIME],
-                    title=article_map[TITLE],
-                    keywords=article_map[KEYWORDS],
-                    section=article_map[SECTION],
-                    site_name=article_map[SITE_NAME],
-                    authors=article_map[AUTHORS],
-                    miner = article_map[MINER],
-                    source = article_map[SOURCE],
+                    url = article_map[ZmbLabels.Article.URL.api()],
+                    content = article_map[ZmbLabels.Article.Content.api()],
+                    published_time = article_map[ZmbLabels.Article.PublishedTime.api()],
+                    title = article_map[ZmbLabels.Article.Title.api()],
+                    keywords = article_map[ZmbLabels.Article.Keyword.api()],
+                    section = article_map[ZmbLabels.Article.Section.api()],
+                    site_name = article_map[ZmbLabels.Article.Site.api()],
+                    authors = article_map[ZmbLabels.Article.Author.api()],
+                    html = article_map[ZmbLabels.Article.HTML.api()],
+                    meta_data = article_map[ZmbLabels.Article.Metadata.api()],
+                    miner = article_map[ZmbLabels.Article.Miner.api()],
                     added = date.today(),
                     last_modified = date.today(),)
         self._session.add(article)
@@ -157,58 +108,40 @@ class ArticleService(BaseService):
         """
         Add the article entities to the session
         """
+        # E.g., label = "people"
+        for label in ZmbLabels.Article.Entity.all_labels_n_metainfo():
+            # If "people" is present in the map and entities["people"] is valid
+            if (label in entities_map.keys() and entities_map[label]):
+                # E.g., entity_name = "Martin Luther King Jr."
+                for entity_name in entities_map[label]:
+                    # Loads a mapping (each time it creates a different obj)
+                    table_mapping = self._table_mapping()
+                    # db_table = TablePeople()
+                    db_table = table_mapping[label]
+                    db_table.hashed_url = self._hashed_url
+                    db_table.name = entity_name
+                    self._session.add(db_table)
 
-        if (MEDIA in entities_map.keys()):
-            for media in entities_map[MEDIA]:
-                self._session.add(TableMedia(hashed_url=self._hashed_url, name=media))
-
-        if (MOVEMENTS in entities_map.keys()):
-            for movement in entities_map[MOVEMENTS]:
-                self._session.add(TableMovements(hashed_url=self._hashed_url, name=movement))
-
-        if (PEOPLE in entities_map.keys()):
-            for person in entities_map[PEOPLE]:
-                self._session.add(TablePeople(hashed_url=self._hashed_url, name=person))
-
-        if (EDUCATIONAL in entities_map.keys()):
-            for educ_inst in entities_map[EDUCATIONAL]:
-                self._session.add(TableEducationalInstitutions(hashed_url=self._hashed_url, name=educ_inst))
-
-        if (PRIVATE in entities_map.keys()):
-            for priv_inst in entities_map[PRIVATE]:
-                self._session.add(TablePrivateInstitutions(hashed_url=self._hashed_url, name=priv_inst))
-
-        if (PUBLIC in entities_map.keys()):
-            for publ_inst in entities_map[PUBLIC]:
-                self._session.add(TablePublicInstitutions(hashed_url=self._hashed_url, name=publ_inst))
-
-        if (ACTIONS in entities_map.keys()):
-            for action in entities_map[ACTIONS]:
-                self._session.add(TableRacistActions(hashed_url=self._hashed_url, name=action))
-
-        if (WORKS in entities_map.keys()):
-            for work in entities_map[WORKS]:
-                self._session.add(TableWorks(hashed_url=self._hashed_url, name=work))
-
-        if (CITIES in entities_map.keys()):
-            for city in entities_map[CITIES]:
-                self._session.add(TableCities(hashed_url=self._hashed_url, name=city))
-
-        if (STATES in entities_map.keys()):
-            for state in entities_map[STATES]:
-                self._session.add(TableStates(hashed_url=self._hashed_url, name=state))
-
-        if (COUNTRIES in entities_map.keys()):
-            for country in entities_map[COUNTRIES]:
-                self._session.add(TableCountries(hashed_url=self._hashed_url, name=country))
-
-        if (LAWS in entities_map.keys()):
-            for law in entities_map[LAWS]:
-                self._session.add(TableLaws(hashed_url=self._hashed_url, title=law, code=law))
-
-        if (POLICES in entities_map.keys()):
-            for police in entities_map[POLICES]:
-                self._session.add(TablePolices(hashed_url=self._hashed_url, name=police))
+    def _table_mapping(self):
+        """
+        Returns a map with the api's label as a key and the class that can
+        handle a request as a value
+        """
+        return { \
+            ZmbLabels.Article.Entity.Movement.api(): TableMovements(),
+            ZmbLabels.Article.Entity.People.api(): TablePeople(),
+            ZmbLabels.Article.Entity.Educational.api(): TableEducationals(),
+            ZmbLabels.Article.Entity.Private.api(): TablePrivates(),
+            ZmbLabels.Article.Entity.Public.api(): TablePublics(),
+            ZmbLabels.Article.Entity.Work.api(): TableWorks(),
+            ZmbLabels.Article.Entity.City.api(): TableCities(),
+            ZmbLabels.Article.Entity.State.api(): TableStates(),
+            ZmbLabels.Article.Entity.Country.api(): TableCountries(),
+            ZmbLabels.Article.Entity.Law.api(): TableLaws(),
+            ZmbLabels.Article.Entity.Police.api(): TablePolices(),
+            ZmbLabels.Article.Entity.Political.api(): TablePoliticals(),
+            #ZmbLabels.Article.Entity.Action.api(): TableActions(),
+        }
 
     def _build_return_map(self, input_maps):
         """
@@ -254,7 +187,7 @@ class ArticleService(BaseService):
         for hash_ in output_map.keys():
             # E.g.
             # entity_: sources
-            for entity_ in ALL_ENTITIES:
+            for entity_ in ZmbLabels.Article.Entity.all_labels_n_metainfo():
                 # if an entity_ is not in the output_map
                 if (not entity_ in output_map[hash_].keys()):
                     # Creates an entry with an empty list in output_map

@@ -5,14 +5,15 @@ from db.article_service import ArticleService
 import json
 from sqlalchemy.exc import IntegrityError
 from zmbapi_exceptions import ZmbDuplicateKeyException
+from hasher import hash_url
 
-def parsed_args_2_article_map(parsed_args):
+def setup_types(parsed_args):
     """
     Converts a parsed_args object into an article_map that can be used to insert
     into the database
     """
     # Hash the url
-    parsed_args['hashed_url'] = hash(parsed_args['url'])
+    parsed_args['hashed_url'] = hash_url(parsed_args['url'])
 
     # The entities come as a JSON string. We convert it to a dictionary
     parsed_args['entities'] = json.loads(parsed_args['entities'])
@@ -27,7 +28,7 @@ def parsed_args_2_article_map(parsed_args):
 
     return parsed_args
 
-def add_article(article_map):
+def add_article_n_entities(article_map):
     """
     Adds an article to the database
     """
@@ -37,3 +38,19 @@ def add_article(article_map):
     except IntegrityError as e:
         url = article_map['url']
         raise ZmbDuplicateKeyException(f"{url}")
+
+def get_by_hash(hashed_url):
+    """
+    Gets an article's entities by hash
+    """
+    with ArticleService() as article_svc:
+        return article_svc.get_articles_by_hash(hashed_url)
+
+def get_by_entities_value(criteria):
+    """
+    Gets an article's entities by entities' value
+    Args:
+        criteria: the entities value such as "São Paulo"
+    """
+    with ArticleService() as article_svc:
+        return article_svc.get_articles_by_criteria(criteria)
