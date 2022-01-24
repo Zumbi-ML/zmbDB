@@ -63,17 +63,34 @@ class BaseSearcher(object):
         raise NotImplementedError(msg)
 
     def _build_return_map(self, results, entity_name):
+        """
+        Transform results into a map
+        """
         result_map = {}
         for row in results:
+            # if a hash ('3ac881ce9b0b838dadceeb5fb95bfffc') is not in result_map
             if (not row.hashed_url in result_map.keys()):
+                # entity_name: e.g.: "people"
                 result_map[row.hashed_url] = {entity_name: []}
+                # row.name: e.g., "Martin Luther King"
+                # result_map[<a hash>]["people"].append("Martin Luther King")
             result_map[row.hashed_url][entity_name].append(row.name)
+        # Every entity returns a dictionary with the following format
+        # {<hash>: {<entity_name>: ["entity val 1", "entity val 2"]}
+        # {'001': {"people": ["Martin Luther King", "Marielle Franco"]}
         return result_map
 
     def __enter__(self):
+        """
+        On enter
+        """
         return self
 
     def __exit__(self, *exc_info):
+        """
+        On exit.
+        By default _commit_on_exit and _close_on_exit are initialized with False
+        """
         if (self._session and self._commit_on_exit):
             try:
                 self._session.commit()
