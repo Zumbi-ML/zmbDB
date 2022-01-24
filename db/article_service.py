@@ -44,6 +44,7 @@ class ArticleService(BaseService):
                 StatesSearcher(self._session),
                 CountriesSearcher(self._session),
                 #LawsSearcher(self._session),
+                LawsSearcher(self._session),
                 PolicesSearcher(self._session),
                 PoliticalSearcher(self._session),
                 #ActionsSearcher(self._session),
