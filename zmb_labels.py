@@ -138,6 +138,10 @@ class ZmbLabels:
             def api():
                 return "url"
 
+        class HashedURL:
+            def api():
+                return "hashed_url"
+
         class HTML:
             def api():
                 return "html"
