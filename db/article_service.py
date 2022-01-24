@@ -43,7 +43,6 @@ class ArticleService(BaseService):
                 CitiesSearcher(self._session),
                 StatesSearcher(self._session),
                 CountriesSearcher(self._session),
-                #LawsSearcher(self._session),
                 LawsSearcher(self._session),
                 PolicesSearcher(self._session),
                 PoliticalSearcher(self._session),
@@ -62,7 +61,14 @@ class ArticleService(BaseService):
             if (result):
                 maps.append(result)
 
-        return self._build_return_map(maps)
+        return_map = self._build_return_map(maps)
+
+        articlesSearcher = ArticlesSearcher(self._session)
+        for hashed_url in return_map.keys():
+             meta = articlesSearcher.query(hashed_url)
+             for key in meta.keys():
+                 return_map[hashed_url][key] = meta[key]
+        return return_map
 
     def persist_article_n_entities(self, article_map):
         """

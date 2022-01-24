@@ -46,7 +46,7 @@ def get_by_hash(hashed_url):
     with ArticleService() as article_svc:
         return article_svc.get_articles_by_hash(hashed_url)
 
-def get_by_entities_value(criteria):
+def get_articles_by_criteria(criteria):
     """
     Gets an article's entities by entities' value
     Args:

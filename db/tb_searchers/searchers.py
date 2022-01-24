@@ -23,7 +23,7 @@ class BaseSearcher(object):
     def query(self, api_label, class_):
         """
         A query can be performed in two ways: by criteria, which has the format
-        of a JSON such as {"people": "Martin Luther King"} or by hash such as
+        of a JSON such as {"people": ["Martin Luther King"]} or by hash such as
         '3ac881ce9b0b838dadceeb5fb95bfffc'
         Args:
             api_label: a label such as "people", "political", "public"
@@ -100,6 +100,24 @@ class BaseSearcher(object):
         if (self._session and self._close_on_exit):
             self._session.close()
 
+
+# Articles searcher
+# ==============================================================================
+
+class ArticlesSearcher(BaseSearcher):
+
+    def query(self, hashed_url):
+        results = self._session.query(TableArticles).filter(TableArticles.hashed_url == hashed_url)
+        meta = {}
+        if (results):
+            meta[ZmbLabels.Article.Title.api()] = results[0].title
+            meta[ZmbLabels.Article.Keyword.api()] = results[0].keywords
+            meta[ZmbLabels.Article.Section.api()] = results[0].section
+            meta[ZmbLabels.Article.Site.api()] = results[0].site_name
+            meta[ZmbLabels.Article.Author.api()] = results[0].authors
+            meta[ZmbLabels.Article.PublishedTime.api()] = results[0].published_time
+            meta[ZmbLabels.Article.URL.api()] = results[0].url
+        return meta
 
 # Sources searcher
 # ==============================================================================
