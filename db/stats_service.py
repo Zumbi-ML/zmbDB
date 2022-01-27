@@ -1,6 +1,6 @@
 from db.base_service import BaseService
-from db.e_map import *
 from db.tb_searchers.searchers import *
+from zmb_labels import ZmbLabels
 
 class StatsService(BaseService):
     """
@@ -21,45 +21,48 @@ class StatsService(BaseService):
         result_map = {}
 
         with SourcesSearcher(self._session) as searcher:
-            result_map[SOURCES] = searcher.count()
+            result_map[ZmbLabels.Article.Source.api()] = searcher.count()
 
         with MediaSearcher(self._session) as searcher:
-            result_map[MEDIA] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.Media.api()] = searcher.count()
 
         with MovementsSearcher(self._session) as searcher:
-            result_map[MOVEMENTS] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.Movement.api()] = searcher.count()
 
         with PeopleSearcher(self._session) as searcher:
-            result_map[PEOPLE] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.People.api()] = searcher.count()
 
         with EducationalSearcher(self._session) as searcher:
-            result_map[EDUCATIONAL] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.Educational.api()] = searcher.count()
 
         with PrivateSearcher(self._session) as searcher:
-            result_map[PRIVATE] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.Private.api()] = searcher.count()
 
         with PublicSearcher(self._session) as searcher:
-            result_map[PUBLIC] = searcher.count()
-
-        with ActionsSearcher(self._session) as searcher:
-            result_map[ACTIONS] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.Public.api()] = searcher.count()
 
         with WorksSearcher(self._session) as searcher:
-            result_map[WORKS] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.Work.api()] = searcher.count()
 
         with CitiesSearcher(self._session) as searcher:
-            result_map[CITIES] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.City.api()] = searcher.count()
 
         with StatesSearcher(self._session) as searcher:
-            result_map[STATES] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.State.api()] = searcher.count()
 
         with CountriesSearcher(self._session) as searcher:
-            result_map[COUNTRIES] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.Country.api()] = searcher.count()
 
         with LawsSearcher(self._session) as searcher:
-            result_map[LAWS] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.Law.api()] = searcher.count()
 
         with PolicesSearcher(self._session) as searcher:
-            result_map[POLICES] = searcher.count()
+            result_map[ZmbLabels.Article.Entity.Police.api()] = searcher.count()
+
+        with PoliticalSearcher(self._session) as searcher:
+            result_map[ZmbLabels.Article.Entity.Political.api()] = searcher.count()
+
+        #with ActionsSearcher(self._session) as searcher:
+        #    result_map[ACTIONS] = searcher.count()
 
         return result_map
