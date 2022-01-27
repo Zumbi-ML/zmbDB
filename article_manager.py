@@ -6,6 +6,7 @@ import json
 from sqlalchemy.exc import IntegrityError
 from zmbapi_exceptions import ZmbDuplicateKeyException
 from hasher import hash_url
+from zmb_labels import ZmbLabels
 
 def setup_types(parsed_args):
     """
@@ -13,18 +14,23 @@ def setup_types(parsed_args):
     into the database
     """
     # Hash the url
-    parsed_args['hashed_url'] = hash_url(parsed_args['url'])
+    hashed_url_lbl = ZmbLabels.Article.HashedURL.api()
+    url_lbl = ZmbLabels.Article.URL.api()
+    parsed_args[hashed_url_lbl] = hash_url(parsed_args[url_lbl])
 
     # The entities come as a JSON string. We convert it to a dictionary
-    parsed_args['entities'] = json.loads(parsed_args['entities'])
+    entities_lbl = ZmbLabels.Article.Entity.api()
+    parsed_args[entities_lbl] = json.loads(parsed_args[entities_lbl])
 
     # Converts publish_time to a date object
+    published_time_lbl = ZmbLabels.Article.PublishedTime.api()
     published_time = None
-    if (not parsed_args['published_time']):
-        published_time = parsed_args['published_time']
+    if (parsed_args[published_time_lbl]):
+        published_time = parsed_args[published_time_lbl]
         year, month, day = published_time.split("-")
+        year, month, day = int(year), int(month), int(day)
         published_time = date(year, month, day)
-    parsed_args['published_time'] = published_time
+    parsed_args[published_time_lbl] = published_time
 
     return parsed_args
 
