@@ -147,6 +147,7 @@ class ArticleService(BaseService):
             ZmbLabels.Article.Entity.Law.api(): TableLaws(),
             ZmbLabels.Article.Entity.Police.api(): TablePolices(),
             ZmbLabels.Article.Entity.Political.api(): TablePoliticals(),
+            ZmbLabels.Article.Entity.Media.api(): TableMedia(),
             #ZmbLabels.Article.Entity.Action.api(): TableActions(),
         }
 
