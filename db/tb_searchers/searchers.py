@@ -1,4 +1,3 @@
-from db.e_map import *
 from db.tables.tb_definitions import *
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
@@ -107,7 +106,8 @@ class BaseSearcher(object):
 class ArticlesSearcher(BaseSearcher):
 
     def query(self, hashed_url):
-        results = self._session.query(TableArticles).filter(TableArticles.hashed_url == hashed_url)
+        results = self._session.query(TableArticles) \
+                        .filter(TableArticles.hashed_url == hashed_url)
         meta = {}
         if (results):
             meta[ZmbLabels.Article.Title.api()] = results[0].title
@@ -115,7 +115,10 @@ class ArticlesSearcher(BaseSearcher):
             meta[ZmbLabels.Article.Section.api()] = results[0].section
             meta[ZmbLabels.Article.Site.api()] = results[0].site_name
             meta[ZmbLabels.Article.Author.api()] = results[0].authors
-            meta[ZmbLabels.Article.PublishedTime.api()] = results[0].published_time
+            published_time = ""
+            if (results[0].published_time):
+                published_time = results[0].published_time.strftime("%Y-%m-%d")
+            meta[ZmbLabels.Article.PublishedTime.api()] = published_time
             meta[ZmbLabels.Article.URL.api()] = results[0].url
         return meta
 
