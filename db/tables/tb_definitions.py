@@ -1,9 +1,10 @@
-from sqlalchemy import Column, Integer, BigInteger, String, Date, Text, Boolean
+from sqlalchemy import (
+    Column, Integer, BigInteger, String, Date, Text, Boolean
+)
 from sqlalchemy import UniqueConstraint, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from constants import API_KEY_SIZE
-from labels import *
 from .max_columns_sizes import *
 
 Base = declarative_base()
