@@ -2,11 +2,12 @@ from db.tables.tb_definitions import *
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from zmb_labels import ZmbLabels
+from sqlalchemy.sql import func
+from sqlalchemy.sql import desc
 
 class SearchType:
     NAME = "name"
     HASH = "hash"
-    CODE = "code"
 
 class BaseSearcher(object):
 
@@ -53,13 +54,36 @@ class BaseSearcher(object):
 
         return self._build_return_map(results, api_label)
 
-    def count(self):
-        msg = \
+    def count_by_name(self, class_, name):
         """
-        This is an abstract class.
-        Please instantiate one of its subclasses instead.
+        Count the number of entries for this entity
         """
-        raise NotImplementedError(msg)
+        result = self._session.query(class_.name,
+                                      func.count('*').label('count')) \
+                                        .filter(class_.name.like(f"%{name}%")) \
+                                          .group_by(class_.name) \
+                                            .order_by(desc('count'))
+        result_lst = []
+        for row in result:
+            result_lst.append({'name': row.name, 'count': row.count})
+        return result_lst
+
+    def count_by_freq(self, class_, topk=10):
+        """
+        Count the number of ocurrences of an entity
+        """
+        result = self._session.query(class_.name, \
+                                        func.count('*').label('count')) \
+                                            .group_by(class_.name) \
+                                                .order_by(desc('count'))
+        k = 0
+        result_lst = []
+        for row in result:
+            if (k >= topk):
+                break
+            result_lst.append({'name': row.name, 'count': row.count})
+            k += 1
+        return result_lst
 
     def _build_return_map(self, results, entity_name):
         """
@@ -131,12 +155,11 @@ class SourcesSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Source.api()
         return super().query(api_label, TableSources)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TableSources.name) \
-                                            .group_by(TableSources.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TableSources)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TableSources, topk)
 
 # Media searcher
 # ==============================================================================
@@ -147,12 +170,11 @@ class MediaSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.Media.api()
         return super().query(api_label, TableMedia)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TableMedia.name) \
-                                            .group_by(TableMedia.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TableMedia, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TableMedia, topk)
 
 # Movement searcher
 # ==============================================================================
@@ -163,12 +185,11 @@ class MovementsSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.Educational.api()
         return super().query(api_label, TableEducationals)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TableMovements.name) \
-                                          .group_by(TableMovements.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TableMovements, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TableMovements, topk)
 
 # People searcher
 # ==============================================================================
@@ -179,12 +200,11 @@ class PeopleSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.People.api()
         return super().query(api_label, TablePeople)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TablePeople.name) \
-                                            .group_by(TablePeople.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TablePeople, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TablePeople, topk)
 
 # Educational searcher
 # ==============================================================================
@@ -195,12 +215,11 @@ class EducationalSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.Educational.api()
         return super().query(api_label, TableEducationals)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TableEducationals.name) \
-                            .group_by(TableEducationals.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TableEducationals, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TableEducationals, topk)
 
 # Private searcher
 # ==============================================================================
@@ -211,12 +230,11 @@ class PrivateSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.Private.api()
         return super().query(api_label, TablePrivates)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TablePrivates.name) \
-                                .group_by(TablePrivates.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TablePrivates, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TablePrivates, topk)
 
 # Public searcher
 # ==============================================================================
@@ -227,12 +245,11 @@ class PublicSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.Public.api()
         return super().query(api_label, TablePublics)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TablePublics.name) \
-                                .group_by(TablePublics.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TablePublics, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TablePublics, topk)
 
 # Works searcher
 # ==============================================================================
@@ -243,12 +260,11 @@ class WorksSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.Work.api()
         return super().query(api_label, TableWorks)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TableWorks.name) \
-                                .group_by(TableWorks.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TableWorks, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TableWorks, topk)
 
 # Cities searcher
 # ==============================================================================
@@ -259,12 +275,11 @@ class CitiesSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.City.api()
         return super().query(api_label, TableCities)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TableCities.name) \
-                                .group_by(TableCities.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TableCities, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TableCities, topk)
 
 # State searcher
 # ==============================================================================
@@ -275,12 +290,11 @@ class StatesSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.State.api()
         return super().query(api_label, TableStates)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TableStates.name) \
-                                .group_by(TableStates.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TableStates, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TableStates, topk)
 
 # Country searcher
 # ==============================================================================
@@ -291,12 +305,11 @@ class CountriesSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.Country.api()
         return super().query(api_label, TableCountries)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TableCountries.name) \
-                                          .group_by(TableCountries.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TableCountries, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TableCountries, topk)
 
 # Laws searcher
 # ==============================================================================
@@ -307,12 +320,11 @@ class LawsSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.Law.api()
         return super().query(api_label, TableLaws)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TableLaws.title) \
-                                              .group_by(TableLaws.title).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TableLaws, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TableLaws, topk)
 
 # Polices searcher
 # ==============================================================================
@@ -323,12 +335,11 @@ class PolicesSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.Police.api()
         return super().query(api_label, TablePolices)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TablePolices.name) \
-                                .group_by(TablePolices.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TablePolices, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TablePolices, topk)
 
 # Political searcher
 # ==============================================================================
@@ -339,9 +350,8 @@ class PoliticalSearcher(BaseSearcher):
         api_label = ZmbLabels.Article.Entity.Political.api()
         return super().query(api_label, TablePoliticals)
 
-    def count(self):
-        """
-        Count the number of entries for this entity
-        """
-        return self._session.query(TablePolices.name) \
-                                .group_by(TablePolices.name).count()
+    def count_by_name(self, name):
+        return super().count_by_name(TablePoliticals, name)
+
+    def count_by_freq(self, topk=10):
+        return super().count_by_freq(TablePoliticals, topk)
